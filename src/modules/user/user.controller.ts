@@ -1,53 +1,26 @@
-import { Controller, Get, Post, Patch, Query, Delete, Body, 
-  HttpException,HttpStatus,ParseIntPipe,
-  Param, Headers ,Put,UseFilters} from '@nestjs/common';
+import { Controller, Get, Post, Body } from '@nestjs/common';
 import { UserService } from './user.service';
-import {
-  ApiResponse,
-  ApiTags,
-  ApiQuery,
-  ApiBearerAuth,
-  ApiBody,
-  ApiParam,
-} from '@nestjs/swagger';
-import { HttpExceptionFilter } from '../../../../project-car/src/common/filters/http-exception.filter';
 
-
-@ApiBearerAuth()
-@ApiTags('User')
-@UseFilters(new HttpExceptionFilter())
-@Controller('/user')
+@Controller('user')
 export class UserController {
-  constructor(private readonly catsService: UserService) {}
+  constructor(private readonly userService: UserService) {}
 
-  // 查询
   @Get()
-  fetch(@Query() { id }, @Headers('token') token): string {
-    if (!id) {
-      throw new HttpException(
-        { status: HttpStatus.BAD_REQUEST, message: '请求参数id 必传', error: 'id is required' },
-        HttpStatus.BAD_REQUEST,
-      );
-    }
-    console.log(token);
-    return this.catsService.fetch(id);
+  findAll() {
+    return this.userService.findAll();
   }
 
-  // 创建
   @Post()
-  save(@Body() { message }): string {
-    return this.catsService.save(message);
+  async create(@Body() param) {
+    const newParam = { ...param, status: true };
+    await this.userService.create(newParam);
+    return true;
   }
 
-  // 更新
-  @Put(':id')
-  update(@Param('id',new ParseIntPipe()) id , @Body() { message }): string {
-    return this.catsService.update(id, message);
-  }
-
-  // 删除
-  @Delete()
-  remove(@Query() { id }): string {
-    return this.catsService.remove(id);
+  @Post('/many')
+  async createMany(@Body() user) {
+    const newUser = user.map(user => ({ ...user, status: true }));
+    await this.userService.createMany(newUser);
+    return true
   }
 }
