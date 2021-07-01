@@ -21,8 +21,20 @@ export class UserController {
     // console.log(req)
     const newParam = {user_name:req.user.username,password:req.user.password}
     console.log('登录接口用户名',newParam.user_name)
-    const res = this.userService.login(newParam)
-    return res;
+    const res = await this.userService.login(newParam)
+    if(res===false){
+      const newParam = { user_name:req.user.username,password:req.user.password, status: true,create_time:new Date().toISOString(),resume:"暂无简介"};
+      const res = await this.userService.reg(newParam);
+      if(res){
+        const newParam = {user_name:req.user.username,password:req.user.password}
+        console.log('注册登录接口用户名',newParam.user_name)
+        const res = await this.userService.login(newParam)
+        return res
+      }
+    }else{
+      return res;
+    }
+    
   }
   //获取用户信息
   @UseGuards(AuthGuard('jwt'))

@@ -3,6 +3,7 @@ import { Repository, Connection, getRepository, getConnection } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from './user.entity';
 import { JwtService } from '@nestjs/jwt';
+import console from 'console';
 
 @Injectable()
 export class UserService {
@@ -16,8 +17,9 @@ export class UserService {
   //注册模块
   async reg(user):Promise<UserEntity[]>{
     const {user_name,password} = user;
+    
     if(user_name&&password){
-      // console.log('name',username)
+      // console.log('name',user)
       //在数据库中查找name
       const u = await getRepository(UserEntity).findOne({ where: { user_name } });
       if (u) {
@@ -32,10 +34,11 @@ export class UserService {
       //需要返回token
       return await this.userRepository.save(user);
       }
+      
       throw new HttpException(
         {
           message: '缺少参数',
-          error: 'name must be unique.',
+          error: user,
         },
         HttpStatus.BAD_REQUEST,
       );
@@ -65,12 +68,12 @@ export class UserService {
       }
       return {
         status:400,
-        description:'登陆失败，请检查账户'
+        description:'登陆失败，请检查账户或密码'
       }
       
     }
     
-    return u
+    return false
     
   }
 
