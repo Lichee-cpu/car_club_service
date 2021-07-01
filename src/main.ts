@@ -5,7 +5,8 @@ import { AppModule } from './app.module';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
-
+  // 处理跨域
+  app.enableCors();
 
   // 全局过滤器
   // app.useGlobalFilters(new HttpExceptionFilter());
@@ -23,6 +24,6 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, swaggerOptions);
   SwaggerModule.setup('doc', app, document);
 
-  await app.listen(3000);
+  await app.listen(8080);
 }
 bootstrap();

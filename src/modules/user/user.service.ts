@@ -1,85 +1,96 @@
-// import { Injectable } from '@nestjs/common';
-
-// @Injectable()
-// export class UserService {
-//   fetch(id): string {
-//     return `Hello World! ${id}`;
-//   }
-  
-
-//   save(message): string {
-//     return `Set Hello Done.${message}`;
-//   }
-
-//   update(id: string, message: string): string {
-//     return `Update Hello Done. ${id}：${message}`;
-//   }
-
-//   remove(id: number): string {
-//     return `${id} Record Was Removed.`;
-//   }
-// }
-
-
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
-import { Repository, Connection, getRepository } from 'typeorm';
+import { Repository, Connection, getRepository, getConnection } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from './user.entity';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
+    private readonly jwtService: JwtService,
     private connection: Connection,
   ) {}
 
-  async findAll(): Promise<UserEntity[]> {
-    // relations: ['photos']， 联合查询
-    return await this.userRepository.find({ relations: ['photos'] });
-    
-    // 或者使用queryBuilder
-    // return await getRepository(UsersEntity)
-    //   .createQueryBuilder("user")
-    //   .leftJoinAndSelect("user.photos", "photo")
-    //   .getMany()
-  }
-
-  async create(user): Promise<UserEntity[]> {
-    const { name } = user;
-    const u = await getRepository(UserEntity).findOne({ where: { name } });
-    //   .createQueryBuilder('users')
-    //   .where('users.name = :name', { name });
-    // const u = await qb.getOne();
-    if (u) {
+  //注册模块
+  async reg(user):Promise<UserEntity[]>{
+    const {user_name,password} = user;
+    if(user_name&&password){
+      // console.log('name',username)
+      //在数据库中查找name
+      const u = await getRepository(UserEntity).findOne({ where: { user_name } });
+      if (u) {
+        throw new HttpException(
+          {
+            message: "用户存在了",
+            error: 'name must be unique.',
+          },
+          HttpStatus.BAD_REQUEST,
+        );
+      }
+      //需要返回token
+      return await this.userRepository.save(user);
+      }
       throw new HttpException(
         {
-          message: 'Input data validation failed',
+          message: '缺少参数',
           error: 'name must be unique.',
         },
         HttpStatus.BAD_REQUEST,
       );
-    }
-    return await this.userRepository.save(user);
+
   }
 
-  async createMany(users: UserEntity[]) {
-    const queryRunner = this.connection.createQueryRunner();
-
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
-    try {
-      users.forEach(async user => {
-        await queryRunner.manager.getRepository(UserEntity).save(user);
-      });
-
-      await queryRunner.commitTransaction();
-    } catch (err) {
-      // since we have errors lets rollback the changes we made
-      await queryRunner.rollbackTransaction();
-    } finally {
-      // you need to release a queryRunner which was manually instantiated
-      await queryRunner.release();
+  //登录模块
+  async login(user:any): Promise<any> {
+    const payload = {user_name: user.user_name, password: user.password};
+    // const payload = {username: user.user_name, sub: user.userId};
+    console.log('payload',payload)
+    const v = await this.userRepository.find({where:{user_name:user.user_name}});
+    const u = await this.userRepository.find({where:{user_name:user.user_name,password:user.password}});
+    if(v.length!=0){
+      if(u.length!=0){
+        return {
+          status:200,
+          description:'登陆成功',
+          body:{
+            token: this.jwtService.sign(payload),
+          }
+        };
+      }
+      throw new HttpException(
+        {
+          status:400,
+          description:'登陆失败，请检查账户'
+        },
+        HttpStatus.BAD_REQUEST,
+      );
     }
+    
+    return u
+    
   }
+
+
+  //设置登录信息的
+  async validateUser(username: string, pass: string): Promise<any> {
+    // const user = await this.userService.find(username);
+    const user = { user_name: 'walker123', password: '123321' };
+    if (user && user.password) {
+      const { password, ...result } = user;
+      return result;
+    }
+    return null;
+  }
+
+  //获取用户信息
+  async getprofile(user):Promise<any>{
+    console.log('用户信息将返回',user.username)
+    const res = await this.userRepository.find({where:{user_name:user.username}});
+    return res
+  }
+
+  
+
 }
