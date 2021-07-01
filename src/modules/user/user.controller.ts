@@ -18,7 +18,7 @@ export class UserController {
   @UseGuards(AuthGuard('local'))
   @Post('login')
   async login(@Request() req) {
-    console.log(req)
+    // console.log(req)
     const newParam = {user_name:req.user.username,password:req.user.password}
     console.log('登录接口用户名',newParam.user_name)
     const res = this.userService.login(newParam)
@@ -29,7 +29,14 @@ export class UserController {
   @Get()
   getProfile(@Request() req) {
     const res = this.userService.getprofile(req.user)
+    console.log('获取用户信息',req.user)
     return res;
+  }
+
+  //退出登录
+  @Post('/logout')
+  logout(@Request() req){
+    return {status:0}
   }
 
   

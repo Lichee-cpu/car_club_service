@@ -44,13 +44,17 @@ export class UserService {
 
   //登录模块
   async login(user:any): Promise<any> {
-    const payload = {user_name: user.user_name, password: user.password};
     // const payload = {username: user.user_name, sub: user.userId};
-    console.log('payload',payload)
     const v = await this.userRepository.find({where:{user_name:user.user_name}});
     const u = await this.userRepository.find({where:{user_name:user.user_name,password:user.password}});
+
     if(v.length!=0){
       if(u.length!=0){
+        // const uuid = await getRepository(UserEntity).find({ select: ["uuid"],where:{user_name:user.user_name,password:user.password} });
+        // console.log(uuid[0])
+        // console.log(typeof uuid[0])
+        // console.log(typeof uuid[0].uuid)
+        const payload = {user_name: user.user_name, password: user.password};
         return {
           status:200,
           description:'登陆成功',
@@ -59,13 +63,11 @@ export class UserService {
           }
         };
       }
-      throw new HttpException(
-        {
-          status:400,
-          description:'登陆失败，请检查账户'
-        },
-        HttpStatus.BAD_REQUEST,
-      );
+      return {
+        status:400,
+        description:'登陆失败，请检查账户'
+      }
+      
     }
     
     return u
@@ -86,9 +88,17 @@ export class UserService {
 
   //获取用户信息
   async getprofile(user):Promise<any>{
-    console.log('用户信息将返回',user.username)
-    const res = await this.userRepository.find({where:{user_name:user.username}});
-    return res
+    if(user.username){
+      const res = await this.userRepository.find({select: ["id","user_name","user_photo","resume","create_time"],where:{user_name:user.username}});
+      // const res = await this.userRepository.find({where:{user_name:user.username}});
+      const body= {id:res[0].id,nickname:res[0].user_name,avatar:res[0].user_photo,resume:res[0].resume,create_time:res[0].create_time}
+      return {
+        status:200,
+        description:'请求用户数据成功',
+        body:body
+      }
+      // return res0
+    }
   }
 
   
