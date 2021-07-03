@@ -1,7 +1,7 @@
 import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { Repository, Connection, getRepository, getConnection } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UserEntity } from './user.entity';
+import { UserEntity } from '../entity/user.entity';
 import { JwtService } from '@nestjs/jwt';
 import console from 'console';
 

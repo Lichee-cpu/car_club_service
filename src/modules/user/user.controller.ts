@@ -48,7 +48,7 @@ export class UserController {
   //退出登录
   @Post('/logout')
   logout(@Request() req){
-    return {status:0}
+    return {status:200}
   }
 
   

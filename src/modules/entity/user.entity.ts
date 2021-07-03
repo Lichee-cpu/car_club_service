@@ -1,6 +1,9 @@
-import { Column, Entity, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn, OneToMany, OneToOne } from 'typeorm';
+// import { ArticleEntity } from './article.entity';
 import { PhotoEntity } from '../photo/photo.entity';
+import { ArticleEntity } from './article.entity';
 
+//用户表
 @Entity({ name: 'user' })
 export class UserEntity {
   @PrimaryGeneratedColumn()
@@ -44,5 +47,12 @@ export class UserEntity {
     photo => photo.user,
   )
   photos: [];
- 
+
+  @OneToMany(
+    () => ArticleEntity,
+    article => article.author_info,
+  )
+  author_info: ArticleEntity[];
+
+
 }

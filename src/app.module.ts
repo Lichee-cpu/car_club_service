@@ -5,9 +5,10 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { CatsModule } from './modules/cats/cats.module';
 import { ConfigModule, ConfigService } from 'nestjs-config';
 import { UserModule } from './modules/user/user.module';
+import { CircleModule } from './modules/circle/circle.module';
+import { ArticleModule} from './modules/article/article.module';
 import statusMonitorConfig from './config/statusMonitor';
 import { StatusMonitorModule } from 'nest-status-monitor';
-import {AuthModule} from './modules/auth/auth.module'
 import { join } from 'path';
 
 @Module({
@@ -31,8 +32,9 @@ import { join } from 'path';
     StatusMonitorModule.setUp(statusMonitorConfig),
     
     CatsModule,
-    AuthModule,
     UserModule,
+    CircleModule,
+    ArticleModule,
    ],
   
 })
