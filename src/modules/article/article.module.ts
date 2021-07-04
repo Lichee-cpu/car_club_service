@@ -5,9 +5,10 @@ import { ArticleService } from './article.service';
 import { ArticleEntity } from '../entity/article.entity';
 import { PassportModule } from '@nestjs/passport';
 import { UserEntity } from '../entity/user.entity';
+import { CommentEntity } from '../entity/comment.entity';
 
 @Module({
-  imports: [PassportModule,TypeOrmModule.forFeature([UserEntity,ArticleEntity])],
+  imports: [PassportModule,TypeOrmModule.forFeature([UserEntity,ArticleEntity,CommentEntity])],
   
   controllers: [ArticleController],
   providers: [ArticleService],

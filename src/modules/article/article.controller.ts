@@ -24,4 +24,41 @@ export class ArticleController {
     return res
   }
 
+  //最新
+  @Get('circle/circle_article_new')
+  async cieclr_new_list(@Query() req){
+    const res = this.articleService.cieclr_new_list(req)
+    return res
+  }
+
+  //最热门
+  @Get('circle/circle_article_hot')
+  async cieclr_hot_list(@Query() req){
+    const res = this.articleService.cieclr_hot_list(req)
+    return res
+  }
+
+  //获取帖子详情
+  @Get('article')
+  async article_info(@Query() req){
+    const res = this.articleService.article_info(req)
+    return res
+  }
+
+  //发布评论
+  @UseGuards(AuthGuard('jwt'))
+  @Post('article/comment')
+  async add_comment(@Request() req){
+    const res =  this.articleService.add_comment(req);  
+    return res
+  }
+
+  //获取评论列表
+  @Get('article/get_comment')
+  async get_comment(@Query() req){
+    const res = this.articleService.get_comment(req)
+    return res
+  }
+ 
+
 }

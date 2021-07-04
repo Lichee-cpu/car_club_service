@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryGeneratedColumn, OneToMany, OneToOne } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn, OneToMany, OneToOne,ManyToOne } from 'typeorm';
 import { UserEntity } from './user.entity';
 import {ArticleEntity } from './article.entity'
 
@@ -9,16 +9,13 @@ export class CommentEntity {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @OneToOne(
+    @ManyToOne(
         () => UserEntity,
-        user => user.id,
+        user => user.comment_list,
     )
-    user_id:number
+    user:number
 
-    @OneToOne(
-        () => ArticleEntity,
-        article => article.id,
-    )
+    @Column()
     article_id:number
     
     @Column()

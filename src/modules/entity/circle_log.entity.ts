@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryGeneratedColumn, OneToMany, OneToOne } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn, OneToMany, OneToOne, ManyToOne } from 'typeorm';
 import { UserEntity } from './user.entity';
 import {CircleEntity } from './circle.entity'
 
@@ -9,16 +9,21 @@ export class CircleLogEntity {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @OneToOne(
-        () => UserEntity,
-        user => user.id,
-    )
+    // @ManyToOne(
+    //     () => UserEntity,
+    //     user => user.circles,
+    // )
+    // user_id:number
+
+    // @ManyToOne(
+    //     () => CircleEntity,
+    //     circle => circle.users,
+    // )
+    // community_id:number
+    @Column()
     user_id:number
 
-    @OneToOne(
-        () => CircleEntity,
-        circle => circle.id,
-    )
+    @Column()
     community_id:number
 
     @Column({ type: 'datetime' })

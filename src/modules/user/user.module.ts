@@ -16,7 +16,7 @@ import { LocalStrategy } from './local.strategy';
     TypeOrmModule.forFeature([UserEntity]),
     JwtModule.register({
       secret: jwtConstants.secret,
-      signOptions: { expiresIn: '600s' },
+      signOptions: { expiresIn: '30m' },
     }),
 ],
   controllers: [UserController],
