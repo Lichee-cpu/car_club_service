@@ -9,6 +9,7 @@ import { CommentEntity } from './comment.entity';
 //用户表
 @Entity({ name: 'user' })
 export class UserEntity {
+  //创建自动生成的列
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -18,7 +19,7 @@ export class UserEntity {
   @Column({ length: 20 })
   user_name: string;
 
-  @Column('varchar')
+  @Column({ select: false })
   password: string;
 
   @Column({ type: 'varchar',length:255})
@@ -27,13 +28,13 @@ export class UserEntity {
   @Column({ type: 'varchar', length: 80 })
   resume:string;
 
-  @Column()
+  @Column({ select: false })
   status: boolean;
 
-  @Column()
+  @Column({ select: false })
   level: boolean;
 
-  @Column()
+  @Column({type:'tinyint',select:false})
   power: boolean;
 
   @Column({ type: 'datetime' })
@@ -42,7 +43,7 @@ export class UserEntity {
   @Column({ type: 'datetime' })
   last_time: Date;
 
-  @Column({ type: 'datetime' })
+  @Column({ type: 'datetime' ,select:false})
   delete_time: Date;
 
   @OneToMany(
@@ -55,7 +56,7 @@ export class UserEntity {
     () => ArticleEntity,
     article => article.author_info,
   )
-  author_info: ArticleEntity[];
+  article_list: ArticleEntity[];
 
   //一个用户可以创多个圈子
   @OneToMany(

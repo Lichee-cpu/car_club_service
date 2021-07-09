@@ -51,6 +51,17 @@ export class UserController {
     return {status:200}
   }
 
+  //我的动态
+  @UseGuards(AuthGuard('jwt'))
+  @Get('/my_interflow')
+  interflow(@Request() req) {
+    const res = this.userService.get_interflow(req.user)
+    console.log('我的动态',req.user)
+    return res;
+  }
+
+  //我的评论
+
   
 
   

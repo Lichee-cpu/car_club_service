@@ -59,6 +59,14 @@ export class ArticleController {
     const res = this.articleService.get_comment(req)
     return res
   }
+
+    //发布图文
+    @UseGuards(AuthGuard('jwt'))
+    @Post('article/upload_article')
+    async add_article(@Request() req){
+      const res =  this.articleService.add_article(req);  
+      return res
+    }
  
 
 }

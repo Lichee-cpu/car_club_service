@@ -4,6 +4,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { UserEntity } from '../entity/user.entity';
 import { JwtService } from '@nestjs/jwt';
 import console from 'console';
+import { userInfo } from 'os';
 
 @Injectable()
 export class UserService {
@@ -101,6 +102,19 @@ export class UserService {
         body:body
       }
       // return res0
+    }
+  }
+
+  //获取我的动态,从图文表中获取数据
+  async get_interflow(user):Promise<any>{
+    if(user.username){
+      
+      const res = await this.userRepository.find({where:{user_name:user.username},select:['user_name','user_photo'] ,relations:['article_list']})
+      return {
+        status:200,
+        description:'请求用户数据成功',
+        body:res
+      }
     }
   }
 

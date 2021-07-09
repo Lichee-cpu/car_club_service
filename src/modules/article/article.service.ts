@@ -6,6 +6,7 @@ import { Repository, Connection, getRepository, getConnection } from 'typeorm';
 import { UserService } from '../user/user.service';
 import { CommentEntity } from '../entity/comment.entity';
 import { threadId } from 'worker_threads';
+import { CircleEntity } from '../entity/circle.entity';
 
 
 
@@ -19,6 +20,8 @@ export class ArticleService {
     private readonly commentRepository: Repository<CommentEntity>,
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
+    @InjectRepository(CircleEntity)
+    private readonly circleRepository: Repository<CircleEntity>,
     private connection: Connection,
     
   ) {}
@@ -67,14 +70,32 @@ export class ArticleService {
   async article_info(req): Promise<any>{
     const res = this.articleRepository.find({
       where:{status:true,delete_time:null,id:req.article_id},
-      relations:['img_list','author_info']
+      select:['id'],
+      relations:['img_list','author_info'],
     })
+    // const res = await getRepository(ArticleEntity)
+    // .createQueryBuilder("article")
+    // .where("article.status = :status", { status: true })
+    // .andWhere("article.delete_time = :delete_time", { delete_time: null })
+    // .andWhere("article.id = :id", { id: req.article_id })
+    // .getOne();
+
     return res
   }
 
   //添加评论
   async add_comment(req): Promise<any>{
+    console.log(req)
     const user_id = await this.userRepository.find({select:['id'],where:{status:true,user_name:req.user.username}})
+    if(user_id.length<1){
+      throw new HttpException(
+        {
+          status:400,
+          description:'用户状态异常，请联系管理员',
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
     const comment = new CommentEntity()
     comment.article_id = req.body.article_id 
     comment.pid = req.body.pid
@@ -99,6 +120,7 @@ export class ArticleService {
       HttpStatus.BAD_REQUEST,
     );
     
+    
   }
  
   //获取评论列表
@@ -112,6 +134,37 @@ export class ArticleService {
   }
 
 
+  //发布图文
+  async add_article(req): Promise<any>{
+    const user_id = await this.userRepository.find({select:['id'],where:{status:true,user_name:req.user.username}})
+    const community_id = await this.circleRepository.find({select:['id'],where:{status:true,id:req.body.community_id}})
+    if(user_id.length<1||community_id.length<1){
+      throw new HttpException(
+        {
+          status:400,
+          description:'用户状态异常，请联系管理员',
+        },
+        HttpStatus.BAD_REQUEST,
+      );
+    }
+    const article = new ArticleEntity()
+    article.content = req.body.content 
+    article.status = true
+    article.community_id = req.body.community_id
+    article.author_info = user_id[0].id
+    article.create_time = new Date()
+    const res= await this.articleRepository.save(article)
+    if(res){
+      return {
+        status:200,
+        description:'数据请求成功',
+        body:res
+      }
+    }
 
-  
+    // return req
+  }
+
+
+
 }

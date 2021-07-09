@@ -12,9 +12,9 @@ export class ArticleEntity {
     //多对一：文章==》发布者
     @ManyToOne(
         () => UserEntity,
-        user => user.author_info,
+        user => user.article_list,
       )
-      author_info: UserEntity;
+      author_info: number;
 
     //多对一：文章==》圈子
     @ManyToOne(
