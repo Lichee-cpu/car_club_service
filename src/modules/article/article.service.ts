@@ -70,7 +70,6 @@ export class ArticleService {
   async article_info(req): Promise<any>{
     const res = this.articleRepository.find({
       where:{status:true,delete_time:null,id:req.article_id},
-      select:['id'],
       relations:['img_list','author_info'],
     })
     // const res = await getRepository(ArticleEntity)
@@ -134,7 +133,7 @@ export class ArticleService {
   }
 
 
-  //发布图文
+  //发布图文 (还未开启事务)
   async add_article(req): Promise<any>{
     const user_id = await this.userRepository.find({select:['id'],where:{status:true,user_name:req.user.username}})
     const community_id = await this.circleRepository.find({select:['id'],where:{status:true,id:req.body.community_id}})

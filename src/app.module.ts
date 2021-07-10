@@ -3,6 +3,7 @@ import { Module, MiddlewareConsumer, RequestMethod  } from '@nestjs/common';
 import { LoggerMiddleware } from './common/middleware/logger.middleware';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { CatsModule } from './modules/cats/cats.module';
+import { photoModule } from './modules/photo/photo.module';
 import { ConfigModule, ConfigService } from 'nestjs-config';
 import { UserModule } from './modules/user/user.module';
 import { CircleModule } from './modules/circle/circle.module';
@@ -35,6 +36,7 @@ import { join } from 'path';
     UserModule,
     CircleModule,
     ArticleModule,
+    photoModule,
    ],
   
 })
