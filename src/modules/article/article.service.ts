@@ -7,6 +7,7 @@ import { UserService } from '../user/user.service';
 import { CommentEntity } from '../entity/comment.entity';
 import { threadId } from 'worker_threads';
 import { CircleEntity } from '../entity/circle.entity';
+import { ImgEntity } from '../entity/img.entity';
 
 
 
@@ -22,6 +23,8 @@ export class ArticleService {
     private readonly userRepository: Repository<UserEntity>,
     @InjectRepository(CircleEntity)
     private readonly circleRepository: Repository<CircleEntity>,
+    @InjectRepository(ImgEntity)
+    private readonly imgRepository: Repository<ImgEntity>,
     private connection: Connection,
     
   ) {}
@@ -146,6 +149,7 @@ export class ArticleService {
         HttpStatus.BAD_REQUEST,
       );
     }
+    //文章入数据库
     const article = new ArticleEntity()
     article.content = req.body.content 
     article.status = true
@@ -153,6 +157,32 @@ export class ArticleService {
     article.author_info = user_id[0].id
     article.create_time = new Date()
     const res= await this.articleRepository.save(article)
+    if(req.body.img_list.length>=1){
+        //解析图片列表
+      const imglist = req.body.img_list.split(",")
+      for(let i=0 ; i<imglist.length; i++){
+        //查询数据库是否有图片
+        const isimg = await this.imgRepository.find({where:{img_path:imglist[i]}})
+        console.log(isimg)
+      if(isimg.length<1){
+          console.log("不存在")
+          const img = new ImgEntity()
+          img.img_path = imglist[i]
+          img.create_time = new Date()
+          img.article = res.id
+          await this.imgRepository.save(img)
+        }else{
+          console.log("需要更新")
+          const img = new ImgEntity()
+          img.delete_time = null
+          img.update_time = new Date()
+          img.article = res.id
+          await this.imgRepository.update(isimg[0].id,img) 
+        }
+      }
+
+     }
+   
     if(res){
       return {
         status:200,
@@ -161,8 +191,10 @@ export class ArticleService {
       }
     }
 
-    // return req
+    return req
   }
+
+  
 
 
 

@@ -2,6 +2,7 @@ import { Column, Entity, PrimaryGeneratedColumn, OneToMany, OneToOne, ManyToOne,
 import { UserEntity } from './user.entity';
 import {CircleEntity } from './circle.entity'
 import { ImgEntity } from './img.entity';
+import { type } from 'os';
 
 //文章信息表
 @Entity({ name: 'article' })
@@ -26,6 +27,9 @@ export class ArticleEntity {
     @Column({ type: 'longtext' })
     content:string;
     
+    @Column({type:'longtext'})
+    img:string;
+
     @OneToMany(
         () => ImgEntity,
         img => img.article,
@@ -33,7 +37,6 @@ export class ArticleEntity {
     img_list: ImgEntity[];
     // @Column({ type: 'longtext' })
     // img_list:string;
-
     @Column()
     likes:number;
 

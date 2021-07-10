@@ -1,28 +1,18 @@
 import { Column, Entity, PrimaryGeneratedColumn, OneToMany, OneToOne,ManyToOne } from 'typeorm';
 import { ArticleEntity } from './article.entity';
 
-
 //图片表
-@Entity({ name: 'img' })
-export class ImgEntity {
+@Entity({ name: 'follow_log' })
+export class FollowLogEntity {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @ManyToOne(
-        () => ArticleEntity,
-        article => article.img_list,
-      )
-    article: number;
+    @Column()
+    user_id: number;
 
     @Column()
-    img_name: string;
+    author_id: number;
 
-    @Column()
-    img_path: string;
-    
-    @Column('varchar')
-    img_type: string;
-    
     @Column({ type: 'datetime' })
     create_time: Date;
 
@@ -31,4 +21,5 @@ export class ImgEntity {
 
     @Column({ type: 'datetime' })
     delete_time: Date;
+
 }

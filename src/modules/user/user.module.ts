@@ -8,12 +8,13 @@ import { JwtStrategy } from './jwt.strategy';
 import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from './constants';
 import { LocalStrategy } from './local.strategy';
+import { FollowLogEntity } from '../entity/follow.entity';
 
 @Module({
  
   imports: [
     PassportModule,
-    TypeOrmModule.forFeature([UserEntity]),
+    TypeOrmModule.forFeature([UserEntity,FollowLogEntity]),
     JwtModule.register({
       secret: jwtConstants.secret,
       signOptions: { expiresIn: '2 days' },

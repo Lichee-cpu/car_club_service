@@ -78,7 +78,7 @@ Nest is [MIT licensed](LICENSE).
 
 # 当前完成
 
-![](https://github.com/Lichee-cpu/images/raw/master/images/images20210704115906.png)
+请查看文档
 
 
 

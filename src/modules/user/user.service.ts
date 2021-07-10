@@ -5,12 +5,15 @@ import { UserEntity } from '../entity/user.entity';
 import { JwtService } from '@nestjs/jwt';
 import console from 'console';
 import { userInfo } from 'os';
+import { FollowLogEntity } from '../entity/follow.entity';
 
 @Injectable()
 export class UserService {
   constructor(
     @InjectRepository(UserEntity)
     private readonly userRepository: Repository<UserEntity>,
+    @InjectRepository(FollowLogEntity)
+    private readonly followLogRepository: Repository<FollowLogEntity>,
     private readonly jwtService: JwtService,
     private connection: Connection,
   ) {}
@@ -108,7 +111,6 @@ export class UserService {
   //获取我的动态,从图文表中获取数据
   async get_interflow(user):Promise<any>{
     if(user.username){
-      
       const res = await this.userRepository.find({where:{user_name:user.username},select:['user_name','user_photo'] ,relations:['article_list']})
       return {
         status:200,
@@ -118,6 +120,25 @@ export class UserService {
     }
   }
 
-  
+  //关注用户
+  async follow(req):Promise<any>{
+    const user_id = await this.userRepository.find({where:{user_name:req.user.username},select:['id']})
+    const follow = new FollowLogEntity()
+    follow.user_id = user_id[0].id
+    follow.author_id = req.body.author_id
+    follow.create_time = new Date()
+    const res = await this.followLogRepository.save(follow)
+    return res
+  }
+  //取消关注
+  async cancel_follow(req):Promise<any>{
+    const user_id = await this.userRepository.find({where:{user_name:req.user.username},select:['id']})
+    const id = await this.followLogRepository.find({where:{user_id:user_id[0].id},select:['id']})
+    const follow = new FollowLogEntity()
+    follow.update_time = new Date()
+    follow.delete_time = new Date()
+    const res = await this.followLogRepository.update(id[0].id,follow)
+    return res
+  }
 
 }

@@ -36,6 +36,8 @@ export class UserController {
     }
     
   }
+
+
   //获取用户信息
   @UseGuards(AuthGuard('jwt'))
   @Get()
@@ -62,6 +64,29 @@ export class UserController {
 
   //我的评论
 
+
+  //关注用户
+  @UseGuards(AuthGuard('jwt'))
+  @Post('/follow_user')
+  async follow(@Request() req){
+    const res = this.userService.follow(req)
+    return {
+      status:200,
+      description:'关注成功',
+      body:res
+    };
+  }
+  //取消关注
+  @UseGuards(AuthGuard('jwt'))
+  @Post('/cancel_follow_user')
+  async cancel_follow(@Request() req){
+    const res = this.userService.cancel_follow(req)
+    return {
+      status:200,
+      description:'取消关注成功',
+      body:res
+    };
+  }
   
 
   
