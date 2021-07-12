@@ -8,8 +8,8 @@ import { CommentEntity } from '../entity/comment.entity';
 import { threadId } from 'worker_threads';
 import { CircleEntity } from '../entity/circle.entity';
 import { ImgEntity } from '../entity/img.entity';
-
-
+import { LikesLogEntity } from '../entity/likes_log.entity';
+import { FollowLogEntity } from '../entity/follow.entity';
 
 @Injectable()
 export class ArticleService {
@@ -25,21 +25,38 @@ export class ArticleService {
     private readonly circleRepository: Repository<CircleEntity>,
     @InjectRepository(ImgEntity)
     private readonly imgRepository: Repository<ImgEntity>,
+    @InjectRepository(LikesLogEntity)
+    private readonly likeslogRepository: Repository<LikesLogEntity>,
+    @InjectRepository(FollowLogEntity)
+    private readonly followlogRepository: Repository<FollowLogEntity>,
     private connection: Connection,
     
   ) {}
 
+  //首页列表
   async get_choose_list(pageParam): Promise<any>{
     // const res = await this.circleRepository.find({skip:pageParam.page * (pageParam.current - 1),take:pageParam.page,order:{name:'ASC'}});
-    const res = await this.articleRepository.find({
+    const home_list = await this.articleRepository.find({
       where:{status:true},
       relations: ['img_list','author_info','community_id'],
       skip:pageParam.limit * (pageParam.page - 1),
       take:pageParam.limit,order:{id:'ASC'},
     });
-    // res.forEach(element => {
-    // //  const  {id} = element
-    // });
+    //设置两个状态（点赞is_like、关注用户is_follow）
+    // 直接让前端传用户id
+    const res=[]
+    home_list.map((item)=>{
+      res.push(item)
+    })
+
+    for(let i in res){
+      const is_like = await this.followlogRepository.find({where:{author_id:res[i].id,user_id:pageParam.user_id}})
+      console.log(res[i].id)
+      console.log(is_like)
+      is_like.length>0?res[i].is_follow=0:res[i].is_follow=1
+    }
+
+
     return  {
       status:200,
       description:'数据请求成功',

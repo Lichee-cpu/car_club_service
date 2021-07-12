@@ -9,18 +9,18 @@ export class LikesLogEntity {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @OneToOne(
-        () => UserEntity,
-        user => user.id,
-    )
+    @Column()
     user_id:number
 
-    @OneToOne(
-        () => ArticleEntity,
-        article => article.id,
-    )
+    @Column()
     article_id:number
 
     @Column({ type: 'datetime' })
     create_time: Date;
+
+    @Column({ type: 'datetime' })
+    update_time: Date;
+
+    @Column({ type: 'datetime' })
+    delete_time: Date;
 }

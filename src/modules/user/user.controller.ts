@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param,UseGuards,Request} from '@nestjs/common';
+import { Controller, Get, Post, Body, Param,UseGuards,Request, Put} from '@nestjs/common';
 import { UserService } from './user.service';
 import { AuthGuard } from '@nestjs/passport';
 
@@ -88,6 +88,13 @@ export class UserController {
     };
   }
   
+  //删除动作
+  @UseGuards(AuthGuard('jwt'))
+  @Post('/del_news')
+  async del_news(@Request() req){
+    console.log(req)
+    return true
+  }
 
   
 }

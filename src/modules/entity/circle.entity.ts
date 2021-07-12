@@ -45,6 +45,10 @@ export class CircleEntity {
     @Column()
     status:boolean;
 
+    //用户显示是否加入
+    @Column()
+    is_join:number
+
     //多对一，一个圈子只属于一个用户创建
     @ManyToOne(
       () => UserEntity,

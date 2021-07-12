@@ -5,6 +5,7 @@ import { UserEntity } from '../entity/user.entity';
 import { Repository, Connection, getRepository, getConnection ,ConnectionOptions} from 'typeorm';
 import { UserService } from '../user/user.service';
 import { CircleLogEntity } from '../entity/circle_log.entity';
+import { async } from 'rxjs';
 
 @Injectable()
 export class CircleService {
@@ -16,11 +17,15 @@ export class CircleService {
     private readonly userRepository: Repository<UserEntity>,
     @InjectRepository(CircleLogEntity)
     private readonly circleLogRepository: Repository<CircleLogEntity>,
-    
-
-    
   ) {}
 
+  async asd(index,item) {
+    var list =[]
+    list[index]=item
+    console.log('listssss',index,list)
+  }
+
+  //获得发布时车友圈选择列表
   async get_choose_list(pageParam): Promise<any>{
     // const res = await this.circleRepository.find({skip:pageParam.page * (pageParam.current - 1),take:pageParam.page,order:{name:'ASC'}});
     const res = await this.circleRepository.find({
@@ -37,21 +42,58 @@ export class CircleService {
     }
   }
 
+  //获取热门车友圈，用户未登录
   async get_hot_circle(pageParam): Promise<any>{
     const res=await this.circleRepository.find({
       where:{status:true},
-      skip:3 * (pageParam.page - 1),
+      skip:3 * (pageParam.query.page - 1),
+      take:3,
+      order:{active_num:'DESC'},
+      select:['id','name','active_user_photo','hot_circle_img','active_num','create_time','is_join']
+    })
+    return {
+      status:200,
+      description:'数据请求成功',
+      body:res,
+
+    }
+  }
+
+  //获取热门车友圈用户已登录情况
+  async get_hot_circle1(req): Promise<any>{
+    const user_id =  await this.userRepository.find({where:{status:true,user_name:req.user.username}})
+    const circle_res=await this.circleRepository.find({
+      where:{status:true},
+      skip:3 * (req.query.page - 1),
       take:3,
       order:{active_num:'DESC'},
       select:['id','name','active_user_photo','hot_circle_img','active_num','create_time']
     })
+    
+
+    //加工res
+    //遍历res
+    const arr = []
+    circle_res.map((item)=>{
+      arr.push(item)
+    })
+
+    for(let i in arr){
+      // console.log(arr[i].id)
+      const res = await this.circleLogRepository.find({where:{community_id:arr[i].id,user_id:user_id[0].id,delete_time:null}})
+      res.length>0?arr[i].is_join=1:arr[i].is_join=0
+      // console.log(arr[i])
+    }
+
     return  {
       status:200,
       description:'数据请求成功',
-      body:res
+      body:arr,
+
     }
   }
 
+  //加入圈子
   async join_circle(req): Promise<any>{
     //用户id
     const user_id = await this.userRepository.find({select:['id'],where:{status:true,user_name:req.user.username}})

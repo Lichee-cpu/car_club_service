@@ -18,20 +18,21 @@ export class ArticleController {
   constructor(private readonly articleService: ArticleService) {}
 
 
+  //获取主页列表
   @Get('get_community_home_list')
   async get_choose_list(@Query() req){
     const res =  this.articleService.get_choose_list(req);  
     return res
   }
 
-  //最新
+  //单项最新
   @Get('circle/circle_article_new')
   async cieclr_new_list(@Query() req){
     const res = this.articleService.cieclr_new_list(req)
     return res
   }
 
-  //最热门
+  //单项最热门
   @Get('circle/circle_article_hot')
   async cieclr_hot_list(@Query() req){
     const res = this.articleService.cieclr_hot_list(req)
