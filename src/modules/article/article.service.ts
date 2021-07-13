@@ -9,7 +9,7 @@ import { threadId } from 'worker_threads';
 import { CircleEntity } from '../entity/circle.entity';
 import { ImgEntity } from '../entity/img.entity';
 import { LikesLogEntity } from '../entity/likes_log.entity';
-import { FollowLogEntity } from '../entity/follow.entity';
+import { FollowLogEntity } from '../entity/follow_log.entity';
 
 @Injectable()
 export class ArticleService {
@@ -50,10 +50,12 @@ export class ArticleService {
     })
 
     for(let i in res){
-      const is_like = await this.followlogRepository.find({where:{author_id:res[i].id,user_id:pageParam.user_id}})
+      const is_like = await this.likeslogRepository.find({where:{author_id:res[i].id,user_id:pageParam.user_id}})
       console.log(res[i].id)
       console.log(is_like)
-      is_like.length>0?res[i].is_follow=0:res[i].is_follow=1
+      is_like.length>0?res[i].is_follow=1:res[i].is_follow=0
+      const is_follow = await this.followlogRepository.find({where:{author_id:res[i].id,user_id:pageParam.user_id}})
+      is_follow.length>0?res[i].is_follow=1:res[i].is_follow=0
     }
 
 
@@ -211,7 +213,28 @@ export class ArticleService {
     return req
   }
 
-  
+
+  //点赞
+  async like_article(req):Promise<any>{
+    const user_id = await this.userRepository.find({where:{user_name:req.user.username},select:['id']})
+    const like = new LikesLogEntity()
+    like.user_id = user_id[0].id
+    like.article_id = req.body.article_id
+    like.create_time = new Date()
+    const res = await this.likeslogRepository.save(like)
+    return res
+  }
+
+  //取消点赞
+  async cancel_like_article(req):Promise<any>{
+    const user_id = await this.userRepository.find({where:{user_name:req.user.username},select:['id']})
+    const id = await this.likeslogRepository.find({where:{user_id:user_id[0].id},select:['id']})
+    const like = new LikesLogEntity()
+    like.update_time = new Date()
+    like.delete_time = new Date()
+    const res = await this.likeslogRepository.update(id[0].id,like)
+    return res
+  }
 
 
 

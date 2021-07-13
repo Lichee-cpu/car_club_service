@@ -8,7 +8,7 @@ import { JwtStrategy } from './jwt.strategy';
 import { JwtModule } from '@nestjs/jwt';
 import { jwtConstants } from './constants';
 import { LocalStrategy } from './local.strategy';
-import { FollowLogEntity } from '../entity/follow.entity';
+import { FollowLogEntity } from '../entity/follow_log.entity';
 
 @Module({
  

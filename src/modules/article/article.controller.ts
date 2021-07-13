@@ -68,6 +68,30 @@ export class ArticleController {
       const res =  this.articleService.add_article(req);  
       return res
     }
+
+  //点赞
+  @UseGuards(AuthGuard('jwt'))
+  @Post('/like_article')
+  async  like_atricle(@Request() req){
+    const res = this.articleService.like_article(req)
+    return {
+      status:200,
+      description:'关注成功',
+      body:res
+    };
+  }
+
+  //取消点赞
+  @UseGuards(AuthGuard('jwt'))
+  @Post('/cancel_like_article')
+  async  cancel_like_atricle(@Request() req){
+    const res = this.articleService.cancel_like_article(req)
+    return {
+      status:200,
+      description:'关注成功',
+      body:res
+    };
+  }
  
 
 }

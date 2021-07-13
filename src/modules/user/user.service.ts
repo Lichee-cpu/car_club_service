@@ -5,7 +5,7 @@ import { UserEntity } from '../entity/user.entity';
 import { JwtService } from '@nestjs/jwt';
 import console from 'console';
 import { userInfo } from 'os';
-import { FollowLogEntity } from '../entity/follow.entity';
+import { FollowLogEntity } from '../entity/follow_log.entity';
 
 @Injectable()
 export class UserService {

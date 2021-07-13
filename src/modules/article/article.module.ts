@@ -9,7 +9,7 @@ import { CommentEntity } from '../entity/comment.entity';
 import { CircleEntity } from '../entity/circle.entity';
 import { ImgEntity } from '../entity/img.entity';
 import { LikesLogEntity } from '../entity/likes_log.entity';
-import { FollowLogEntity } from '../entity/follow.entity';
+import { FollowLogEntity } from '../entity/follow_log.entity';
 
 @Module({
   imports: [PassportModule,TypeOrmModule.forFeature([UserEntity,ArticleEntity,
