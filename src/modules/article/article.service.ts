@@ -11,6 +11,7 @@ import { ImgEntity } from '../entity/img.entity';
 import { LikesLogEntity } from '../entity/likes_log.entity';
 import { FollowLogEntity } from '../entity/follow_log.entity';
 
+
 @Injectable()
 export class ArticleService {
   
@@ -35,12 +36,13 @@ export class ArticleService {
 
   //首页列表
   async get_choose_list(pageParam): Promise<any>{
-    // const res = await this.circleRepository.find({skip:pageParam.page * (pageParam.current - 1),take:pageParam.page,order:{name:'ASC'}});
+    
     const home_list = await this.articleRepository.find({
       where:{status:true},
       relations: ['img_list','author_info','community_id'],
       skip:pageParam.limit * (pageParam.page - 1),
-      take:pageParam.limit,order:{id:'ASC'},
+      take:pageParam.limit,
+      order:{id:'ASC'},
     });
     //设置两个状态（点赞is_like、关注用户is_follow）
     // 直接让前端传用户id
@@ -50,11 +52,10 @@ export class ArticleService {
     })
 
     for(let i in res){
-      const is_like = await this.likeslogRepository.find({where:{author_id:res[i].id,user_id:pageParam.user_id}})
-      console.log(res[i].id)
-      console.log(is_like)
-      is_like.length>0?res[i].is_follow=1:res[i].is_follow=0
-      const is_follow = await this.followlogRepository.find({where:{author_id:res[i].id,user_id:pageParam.user_id}})
+      const is_like = await this.likeslogRepository.find({where:{article_id:res[i].id,user_id:pageParam.user_id,delete_time:null}})
+      console.log(res[i].author_info.id)
+      is_like.length>0?res[i].is_likes=1:res[i].is_likes=0
+      const is_follow = await this.followlogRepository.find({where:{author_id:res[i].author_info.id,user_id:pageParam.user_id,delete_time:null}})
       is_follow.length>0?res[i].is_follow=1:res[i].is_follow=0
     }
 
@@ -72,8 +73,11 @@ export class ArticleService {
       where:{status:true,community_id:pageParam.community_id},
       relations: ['img_list','author_info'],
       skip:pageParam.limit * (pageParam.page - 1),
-      take:pageParam.limit,order:{create_time:'DESC'},
-    })
+      take:pageParam.limit,
+      order:{create_time:'DESC'},
+    });
+   
+    
     return res
   }
 
@@ -146,6 +150,14 @@ export class ArticleService {
  
   //获取评论列表
   async get_comment(req): Promise<any>{
+    if(req.pid){
+      const res=await this.commentRepository.find({
+        where:{status:true,article_id:req.article_id,pid:req.pid},
+        relations:['user'],
+        order:{create_time:'DESC'}
+      })
+      return res
+    }
     const res=await this.commentRepository.find({
       where:{status:true,article_id:req.article_id},
       relations:['user'],
@@ -236,6 +248,22 @@ export class ArticleService {
     return res
   }
 
-
+//删除动态
+async del_news(req):Promise<any>{
+  // const user_id = await this.userRepository.find({where:{user_name:req.user.username},select:['id']})
+  //验证当前文章是否存在
+  const id = await this.articleRepository.find({where:{id:req.body.article_id},select:['id']})
+  // console.log(id[0].author_info.user_name)
+  const article = new ArticleEntity()
+  article.update_time = new Date()
+  article.delete_time = new Date()
+  article.status = false
+  const res = await this.articleRepository.update(id[0].id,article)
+  return {
+        status:200,
+        description:'删除成功',
+        body:res
+  }
+}
 
 }

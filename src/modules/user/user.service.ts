@@ -111,11 +111,19 @@ export class UserService {
   //获取我的动态,从图文表中获取数据
   async get_interflow(user):Promise<any>{
     if(user.username){
-      const res = await this.userRepository.find({where:{user_name:user.username},select:['user_name','user_photo'] ,relations:['article_list']})
+      //先获取所有
+      const res= await this.userRepository.find({where:{user_name:user.username},select:['user_name','user_photo'],relations:['article_list']})
+      // 验证是否删除
+      // console.log(res)
+      const arr = []
+      res[0].article_list.map((item,index)=>{
+       item.status?arr.push(item):null
+      })
+      // return arr
       return {
         status:200,
         description:'请求用户数据成功',
-        body:res
+        body:[{article_list:arr,user_name:res[0].user_name,user_photo:res[0].user_photo}]
       }
     }
   }

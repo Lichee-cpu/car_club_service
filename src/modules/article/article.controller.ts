@@ -76,7 +76,7 @@ export class ArticleController {
     const res = this.articleService.like_article(req)
     return {
       status:200,
-      description:'关注成功',
+      description:'点赞成功',
       body:res
     };
   }
@@ -88,10 +88,18 @@ export class ArticleController {
     const res = this.articleService.cancel_like_article(req)
     return {
       status:200,
-      description:'关注成功',
+      description:'取消点赞成功',
       body:res
     };
   }
+
+    //删除动态
+    @UseGuards(AuthGuard('jwt'))
+    @Post('/del_news')
+    async del_news(@Request() req){
+      const res = this.articleService.del_news(req)
+      return res
+    }
  
 
 }

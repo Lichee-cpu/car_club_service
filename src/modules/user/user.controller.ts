@@ -88,13 +88,5 @@ export class UserController {
     };
   }
   
-  //删除动作
-  @UseGuards(AuthGuard('jwt'))
-  @Post('/del_news')
-  async del_news(@Request() req){
-    console.log(req)
-    return true
-  }
-
   
 }
