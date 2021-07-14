@@ -74,23 +74,7 @@ export class ArticleController {
   @Post('/like_article')
   async  like_atricle(@Request() req){
     const res = this.articleService.like_article(req)
-    return {
-      status:200,
-      description:'点赞成功',
-      body:res
-    };
-  }
-
-  //取消点赞
-  @UseGuards(AuthGuard('jwt'))
-  @Post('/cancel_like_article')
-  async  cancel_like_atricle(@Request() req){
-    const res = this.articleService.cancel_like_article(req)
-    return {
-      status:200,
-      description:'取消点赞成功',
-      body:res
-    };
+    return res
   }
 
     //删除动态

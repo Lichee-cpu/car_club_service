@@ -229,24 +229,39 @@ export class ArticleService {
   //点赞
   async like_article(req):Promise<any>{
     const user_id = await this.userRepository.find({where:{user_name:req.user.username},select:['id']})
-    const like = new LikesLogEntity()
-    like.user_id = user_id[0].id
-    like.article_id = req.body.article_id
-    like.create_time = new Date()
-    const res = await this.likeslogRepository.save(like)
-    return res
+    //检查当前状态，不存在添加为点赞，存在则设置成取消
+    const status = await this.likeslogRepository.find({article_id:req.body.article_id,delete_time:null,user_id:user_id[0].id})
+    console.log(status)
+    if(status.length>0){
+      //取消
+      const id = await this.likeslogRepository.find({where:{user_id:user_id[0].id,delete_time:null},select:['id']})
+      const like = new LikesLogEntity()
+      like.update_time = new Date()
+      like.delete_time = new Date()
+      await this.likeslogRepository.update(id[0].id,like)
+    }else{
+      //添加
+      const like = new LikesLogEntity()
+      like.user_id = user_id[0].id
+      like.article_id = req.body.article_id
+      like.create_time = new Date()
+      await this.likeslogRepository.save(like)
+    }
+    //统计当前文章点赞数
+    const count_num = await this.likeslogRepository.find({where:{article_id:req.body.article_id,delete_time:null}})
+
+
+
+    
+
+    return {
+      status:200,
+      description:status.length>0?"已取消":"点赞成功",
+      body:{start_count:count_num.length,iscancelstar:status.length>0?false:true}
+    };
   }
 
-  //取消点赞
-  async cancel_like_article(req):Promise<any>{
-    const user_id = await this.userRepository.find({where:{user_name:req.user.username},select:['id']})
-    const id = await this.likeslogRepository.find({where:{user_id:user_id[0].id},select:['id']})
-    const like = new LikesLogEntity()
-    like.update_time = new Date()
-    like.delete_time = new Date()
-    const res = await this.likeslogRepository.update(id[0].id,like)
-    return res
-  }
+
 
 //删除动态
 async del_news(req):Promise<any>{
