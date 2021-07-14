@@ -22,8 +22,14 @@ export class UserController {
     const newParam = {user_name:req.user.username,password:req.user.password}
     console.log('登录接口用户名',newParam.user_name)
     const res = await this.userService.login(newParam)
+    
     if(res===false){
-      const newParam = { user_name:req.user.username,password:req.user.password, status: true,create_time:new Date().toISOString(),resume:"暂无简介"};
+      const newParam = { user_name:req.user.username,
+        user_photo:'http://api.rosysun.cn/sjtx/',
+        password:req.user.password, 
+        status: true,
+        create_time:new Date().toISOString(),
+        resume:"暂无简介"};
       const res = await this.userService.reg(newParam);
       if(res){
         const newParam = {user_name:req.user.username,password:req.user.password}
@@ -94,6 +100,11 @@ export class UserController {
       body:res
     };
   }
-  
+  //设置用头像
+  @UseGuards(AuthGuard('jwt'))
+  @Post('/upload_photo')
+  async upload_photo(@Request() req){
+    const res = this.userService.upload_photo(req)
+  }
   
 }

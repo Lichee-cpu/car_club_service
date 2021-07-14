@@ -136,28 +136,69 @@ export class UserService {
     }
   }
 
-  //我的评论，先去评论表找当前用户user_id对应的article_id
-  //然后获取article_id的内容，以及作者id
+  // //我的评论，先去评论表找当前用户user_id对应的article_id
+  // //然后获取article_id的内容，以及作者id
+  // async get_comments (user):Promise<any>{
+  //   const user_id = await this.userRepository.find({where:{user_name:user.username},select:['id']})
+  //   if(user.username){
+  //     const article_id = await this.commentRepository.find({where:{user:user_id[0].id}})
+  //     // return article_id
+  //     //是一个列表，先将列表添加到一个数组，然后再去获取每条
+  //     const res=[]
+  //     article_id.map((item)=>{
+  //     res.push(item)
+  //     })
+  //     for(let i in res){
+  //       const atrticle_content = await this.articleRepository.find({where:{id:res[i].article_id},select:['content','author_info'],relations:['author_info']})
+  //       // const author_info = await this.articleRepository.find({where:{id:res[i].article_id},select:['content']})
+  //       res[i].atrticle_content = atrticle_content
+  //     }
+  //     return res
+
+
+  //   }
+  // }
+
+  // 我的评论
   async get_comments (user):Promise<any>{
+    // 先找评论表，作者是自己的
     const user_id = await this.userRepository.find({where:{user_name:user.username},select:['id']})
-    if(user.username){
-      const article_id = await this.commentRepository.find({where:{user:user_id[0].id}})
-      // return article_id
-      //是一个列表，先将列表添加到一个数组，然后再去获取每条
-      const res=[]
-      article_id.map((item)=>{
-      res.push(item)
+    // const res = await this.commentRepository.find({where:{user:user_id[0].id}})
+    //获取用户文章的评论ID
+    const res= await this.userRepository.find({where:{user_name:user.username},select:['user_name','user_photo'],relations:['article_list']})
+    const arr = []
+      res[0].article_list.map((item,index)=>{
+       item.status?arr.push(item):null
       })
-      for(let i in res){
-        const atrticle_content = await this.articleRepository.find({where:{id:res[i].article_id},select:['content','author_info']})
-        // const author_info = await this.articleRepository.find({where:{id:res[i].article_id},select:['content']})
-        res[i].atrticle_content = atrticle_content
-
+      //查找属于当前文章id的评论
+      const all_lits = []
+      for(let i in arr){
+        const a = await this.commentRepository.find({where:{article_id:arr[i].id,},relations:['user'],order:{create_time:'ASC'}})
+        for(let i in a){
+          all_lits.push(a[i])
+        }
       }
-      return res
-
-
+      const compare = function (prop) {
+        return function (obj1, obj2) {
+          const val1 = obj1[prop];
+          const val2 = obj2[prop];if (val1 > val2) {
+                return -1;
+            } else if (val1 < val2) {
+                return 1;
+            } else {
+                return 0;
+            }            
+        } 
     }
+
+      return {
+        status:200,
+        description:'请求用户数据成功',
+        body:all_lits.sort(compare('create_time'))
+      }
+
+
+    // return arr
   }
 
   //关注用户
@@ -179,6 +220,15 @@ export class UserService {
     follow.delete_time = new Date()
     const res = await this.followLogRepository.update(id[0].id,follow)
     return res
+  }
+
+  //上传头像
+  async upload_photo(req):Promise<any>{
+    const user_id = await this.userRepository.find({where:{user_name:req.user.username},select:['id']})
+    const photo = new UserEntity()
+    photo.user_photo = req.body.photo
+    const res = await this.userRepository.update(user_id[0].id,photo)
+    return "头像更新成功"
   }
 
 }
