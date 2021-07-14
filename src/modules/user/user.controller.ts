@@ -63,6 +63,13 @@ export class UserController {
   }
 
   //我的评论
+  @UseGuards(AuthGuard('jwt'))
+  @Get('/my_comments')
+  comments(@Request() req) {
+    const res = this.userService.get_comments(req.user)
+    console.log('我的评论',req.user)
+    return res;
+  }
 
 
   //关注用户

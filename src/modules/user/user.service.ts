@@ -6,7 +6,9 @@ import { JwtService } from '@nestjs/jwt';
 import console from 'console';
 import { userInfo } from 'os';
 import { FollowLogEntity } from '../entity/follow_log.entity';
+import { CommentEntity } from '../entity/comment.entity';
 
+import { ArticleEntity } from '../entity/article.entity';
 @Injectable()
 export class UserService {
   constructor(
@@ -14,6 +16,12 @@ export class UserService {
     private readonly userRepository: Repository<UserEntity>,
     @InjectRepository(FollowLogEntity)
     private readonly followLogRepository: Repository<FollowLogEntity>,
+
+    @InjectRepository(CommentEntity)
+    private readonly commentRepository: Repository<CommentEntity>,
+    @InjectRepository(ArticleEntity)
+    private readonly articleRepository: Repository<ArticleEntity>,
+
     private readonly jwtService: JwtService,
     private connection: Connection,
   ) {}
@@ -125,6 +133,30 @@ export class UserService {
         description:'请求用户数据成功',
         body:[{article_list:arr,user_name:res[0].user_name,user_photo:res[0].user_photo}]
       }
+    }
+  }
+
+  //我的评论，先去评论表找当前用户user_id对应的article_id
+  //然后获取article_id的内容，以及作者id
+  async get_comments (user):Promise<any>{
+    const user_id = await this.userRepository.find({where:{user_name:user.username},select:['id']})
+    if(user.username){
+      const article_id = await this.commentRepository.find({where:{user:user_id[0].id}})
+      // return article_id
+      //是一个列表，先将列表添加到一个数组，然后再去获取每条
+      const res=[]
+      article_id.map((item)=>{
+      res.push(item)
+      })
+      for(let i in res){
+        const atrticle_content = await this.articleRepository.find({where:{id:res[i].article_id},select:['content','author_info']})
+        // const author_info = await this.articleRepository.find({where:{id:res[i].article_id},select:['content']})
+        res[i].atrticle_content = atrticle_content
+
+      }
+      return res
+
+
     }
   }
 

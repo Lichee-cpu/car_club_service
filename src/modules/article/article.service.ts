@@ -38,7 +38,7 @@ export class ArticleService {
   async get_choose_list(pageParam): Promise<any>{
     
     const home_list = await this.articleRepository.find({
-      where:{status:true},
+      where:{status:true,delete_time:null},
       relations: ['img_list','author_info','community_id'],
       skip:pageParam.limit * (pageParam.page - 1),
       take:pageParam.limit,
