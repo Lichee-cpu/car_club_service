@@ -297,4 +297,21 @@ async del_news(req):Promise<any>{
   }
 }
 
+async del_comments(req):Promise<any>{
+  //验证当评论id
+  const id = await this.commentRepository.find({where:{id:req.body.comment_id},select:['id']})
+  const comment = new CommentEntity()
+  comment.update_time = new Date()
+  comment.delete_time = new Date()
+  comment.status = false
+  const res = await this.commentRepository.update(id[0].id,comment)
+  return {
+    status:200,
+    description:'删除成功',
+    body:res
+}
+
+}
+
+
 }

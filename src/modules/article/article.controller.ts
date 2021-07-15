@@ -84,6 +84,13 @@ export class ArticleController {
       const res = this.articleService.del_news(req)
       return res
     }
+    //删除评论
+    @UseGuards(AuthGuard('jwt'))
+    @Post('/del_comments')
+    async del_comments(@Request() req){
+      const res = this.articleService.del_comments(req)
+      return res
+    }
  
 
 }

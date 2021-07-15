@@ -173,7 +173,7 @@ export class UserService {
       //查找属于当前文章id的评论
       const all_lits = []
       for(let i in arr){
-        const a = await this.commentRepository.find({where:{article_id:arr[i].id,},relations:['user'],order:{create_time:'ASC'}})
+        const a = await this.commentRepository.find({where:{article_id:arr[i].id,status:true},relations:['user'],order:{create_time:'ASC'}})
         for(let i in a){
           all_lits.push(a[i])
         }
