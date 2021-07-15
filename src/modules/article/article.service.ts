@@ -69,27 +69,52 @@ export class ArticleService {
 
   //最新
   async cieclr_new_list(pageParam): Promise<any>{
-    const res = this.articleRepository.find({
-      where:{status:true,community_id:pageParam.community_id},
+    const new_list = await this.articleRepository.find({
+      where:{status:true,delete_time:null,community_id:pageParam.community_id},
       relations: ['img_list','author_info'],
       skip:pageParam.limit * (pageParam.page - 1),
       take:pageParam.limit,
       order:{create_time:'DESC'},
     });
-   
-    
-    return res
+    //设置两个状态（点赞is_like、关注用户is_follow）
+    // 直接让前端传用户id
+    const res=[]
+    new_list.map((item)=>{
+      res.push(item)
+    })
+    for(let i in res){
+      const is_like = await this.likeslogRepository.find({where:{article_id:res[i].id,user_id:pageParam.user_id,delete_time:null}})
+      console.log(res[i].author_info.id)
+      is_like.length>0?res[i].is_likes=1:res[i].is_likes=0
+      const is_follow = await this.followlogRepository.find({where:{author_id:res[i].author_info.id,user_id:pageParam.user_id,delete_time:null}})
+      is_follow.length>0?res[i].is_follow=1:res[i].is_follow=0
+    }
+
+    return  res
   }
 
   //最热
   async cieclr_hot_list(pageParam): Promise<any>{
-    const res = this.articleRepository.find({
-      where:{status:true,community_id:pageParam.community_id},
+    const hot_list =await this.articleRepository.find({
+      where:{status:true,community_id:pageParam.community_id,delete_time:null},
       relations: ['img_list','author_info'],
       skip:pageParam.limit * (pageParam.page - 1),
-      take:pageParam.limit,order:{views:'DESC'},
+      take:pageParam.limit,order:{likes:'DESC'},
+    });
+    const res=[]
+    hot_list.map((item)=>{
+      res.push(item)
     })
-    return res
+    for(let i in res){
+      const is_like = await this.likeslogRepository.find({where:{article_id:res[i].id,user_id:pageParam.user_id,delete_time:null}})
+      console.log(res[i].author_info.id)
+      is_like.length>0?res[i].is_likes=1:res[i].is_likes=0
+      const is_follow = await this.followlogRepository.find({where:{author_id:res[i].author_info.id,user_id:pageParam.user_id,delete_time:null}})
+      is_follow.length>0?res[i].is_follow=1:res[i].is_follow=0
+    }
+
+
+    return  res
   }
 
   //帖子详情
