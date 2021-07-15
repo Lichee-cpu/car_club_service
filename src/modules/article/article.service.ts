@@ -53,7 +53,7 @@ export class ArticleService {
 
     for(let i in res){
       const is_like = await this.likeslogRepository.find({where:{article_id:res[i].id,user_id:pageParam.user_id,delete_time:null}})
-      console.log(res[i].author_info.id)
+      console.log("首页列表用户id",res[i].author_info.id)
       is_like.length>0?res[i].is_likes=1:res[i].is_likes=0
       const is_follow = await this.followlogRepository.find({where:{author_id:res[i].author_info.id,user_id:pageParam.user_id,delete_time:null}})
       is_follow.length>0?res[i].is_follow=1:res[i].is_follow=0
@@ -69,27 +69,23 @@ export class ArticleService {
 
   //最新
   async cieclr_new_list(pageParam): Promise<any>{
-    const new_list = await this.articleRepository.find({
-      where:{status:true,delete_time:null,community_id:pageParam.community_id},
+    const new_list =await this.articleRepository.find({
+      where:{status:true,community_id:pageParam.community_id,delete_time:null},
       relations: ['img_list','author_info'],
       skip:pageParam.limit * (pageParam.page - 1),
-      take:pageParam.limit,
-      order:{create_time:'DESC'},
+      take:pageParam.limit,order:{create_time:'DESC'},
     });
-    //设置两个状态（点赞is_like、关注用户is_follow）
-    // 直接让前端传用户id
     const res=[]
     new_list.map((item)=>{
       res.push(item)
     })
     for(let i in res){
       const is_like = await this.likeslogRepository.find({where:{article_id:res[i].id,user_id:pageParam.user_id,delete_time:null}})
-      console.log(res[i].author_info.id)
+      console.log("最新",res[i].author_info.id)
       is_like.length>0?res[i].is_likes=1:res[i].is_likes=0
       const is_follow = await this.followlogRepository.find({where:{author_id:res[i].author_info.id,user_id:pageParam.user_id,delete_time:null}})
       is_follow.length>0?res[i].is_follow=1:res[i].is_follow=0
     }
-
     return  res
   }
 
@@ -107,7 +103,7 @@ export class ArticleService {
     })
     for(let i in res){
       const is_like = await this.likeslogRepository.find({where:{article_id:res[i].id,user_id:pageParam.user_id,delete_time:null}})
-      console.log(res[i].author_info.id)
+      console.log("最热的用户ID",res[i].author_info.id)
       is_like.length>0?res[i].is_likes=1:res[i].is_likes=0
       const is_follow = await this.followlogRepository.find({where:{author_id:res[i].author_info.id,user_id:pageParam.user_id,delete_time:null}})
       is_follow.length>0?res[i].is_follow=1:res[i].is_follow=0
@@ -135,7 +131,7 @@ export class ArticleService {
 
   //添加评论
   async add_comment(req): Promise<any>{
-    console.log(req)
+    console.log("添加评论的所有信息",req)
     const user_id = await this.userRepository.find({select:['id'],where:{status:true,user_name:req.user.username}})
     if(user_id.length<1){
       throw new HttpException(
@@ -202,7 +198,9 @@ export class ArticleService {
   //发布图文 (还未开启事务)
   async add_article(req): Promise<any>{
     const user_id = await this.userRepository.find({select:['id'],where:{status:true,user_name:req.user.username}})
+    console.log("fb用户id",user_id)
     const community_id = await this.circleRepository.find({select:['id'],where:{status:true,id:req.body.community_id}})
+    console.log("fb圈子id",community_id)
     if(user_id.length<1||community_id.length<1){
       throw new HttpException(
         {
@@ -217,6 +215,7 @@ export class ArticleService {
     article.content = req.body.content 
     article.status = true
     article.community_id = req.body.community_id
+    article.author_info = user_id[0].id
     article.create_time = new Date()
     const res= await this.articleRepository.save(article)
     if(req.body.img_list.length>=1){
@@ -225,7 +224,7 @@ export class ArticleService {
       for(let i=0 ; i<imglist.length; i++){
         //查询数据库是否有图片
         const isimg = await this.imgRepository.find({where:{img_path:imglist[i]}})
-        console.log(isimg)
+        console.log("图片列表",isimg)
       if(isimg.length<1){
           console.log("不存在")
           const img = new ImgEntity()
@@ -263,7 +262,7 @@ export class ArticleService {
     //检查当前状态，不存在添加为点赞，存在则设置成取消
     const status = await this.likeslogRepository.find({article_id:req.body.article_id,delete_time:null,user_id:user_id[0].id})
      
-    console.log(status)
+    console.log("点赞当前状态",status)
     if(status.length>0){
       //取消
       const id = await this.likeslogRepository.find({where:{user_id:user_id[0].id,delete_time:null},select:['id']})
