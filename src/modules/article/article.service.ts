@@ -237,8 +237,7 @@ export class ArticleService {
     const user_id = await this.userRepository.find({where:{user_name:req.user.username},select:['id']})
     //检查当前状态，不存在添加为点赞，存在则设置成取消
     const status = await this.likeslogRepository.find({article_id:req.body.article_id,delete_time:null,user_id:user_id[0].id})
-     //统计当前文章点赞数
-     const count_num = await this.likeslogRepository.find({where:{article_id:req.body.article_id,delete_time:null}})
+     
     console.log(status)
     if(status.length>0){
       //取消
@@ -247,6 +246,8 @@ export class ArticleService {
       like.update_time = new Date()
       like.delete_time = new Date()
       await this.likeslogRepository.update(id[0].id,like)
+      //统计当前文章点赞数
+     const count_num = await this.likeslogRepository.find({where:{article_id:req.body.article_id,delete_time:null}})
       const likes = await this.articleRepository.find({where:{id:req.body.article_id}})
       const update_likes = new ArticleEntity()
       update_likes.likes = count_num.length
@@ -258,11 +259,16 @@ export class ArticleService {
       like.article_id = req.body.article_id
       like.create_time = new Date()
       await this.likeslogRepository.save(like)
+      //统计当前文章点赞数
+     const count_num = await this.likeslogRepository.find({where:{article_id:req.body.article_id,delete_time:null}})
       const likes = await this.articleRepository.find({where:{id:req.body.article_id}})
       const update_likes = new ArticleEntity()
       update_likes.likes = count_num.length
       await this.articleRepository.update(likes[0].id,update_likes)
     }
+    //统计当前文章点赞数
+    const count_num = await this.likeslogRepository.find({where:{article_id:req.body.article_id,delete_time:null}})
+    
    
     return {
       status:200,
