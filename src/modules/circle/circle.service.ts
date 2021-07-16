@@ -2,7 +2,7 @@ import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CircleEntity } from '../entity/circle.entity';
 import { UserEntity } from '../entity/user.entity';
-import { Repository, Connection, getRepository, getConnection ,ConnectionOptions} from 'typeorm';
+import { Repository, Connection, getRepository, getConnection ,ConnectionOptions, IsNull} from 'typeorm';
 import { UserService } from '../user/user.service';
 import { CircleLogEntity } from '../entity/circle_log.entity';
 import { async } from 'rxjs';
@@ -70,7 +70,6 @@ export class CircleService {
       select:['id','name','active_user_photo','hot_circle_img','active_num','create_time']
     })
     
-
     //加工res
     //遍历res
     const arr = []
@@ -166,12 +165,15 @@ export class CircleService {
       relations: ['circle_master'],
       where:{id:req.community_id,status:true}
     })
-    
+    const res1 = await this.circleLogRepository.find({where:{id:res[0].id,user_id:req.user_id,delete_time:null}})
+    console.log("获取单项车有圈信息",res1)
+    const is_join = res1.length>0?1:0
+
     if(res.length!==0){
       return {
         status:200,
         description:'数据请求成功',
-        body:res
+        body:res,is_join
       }
     }else{
       throw new HttpException(

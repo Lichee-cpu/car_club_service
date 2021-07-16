@@ -49,6 +49,9 @@ export class ArticleEntity {
     @Column()
     status:boolean;
 
+    @Column()
+    type:number;
+
     @Column({ type: 'datetime' })
     create_time: Date;
 

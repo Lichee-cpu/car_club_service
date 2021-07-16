@@ -30,6 +30,9 @@ export class CommentEntity {
     @Column()
     status:boolean;
 
+    @Column()
+    selected:boolean
+
     @Column({ type: 'datetime' })
     create_time: Date;
 

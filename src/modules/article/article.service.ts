@@ -205,15 +205,17 @@ export class ArticleService {
       throw new HttpException(
         {
           status:400,
-          description:'用户状态异常，请联系管理员',
+          description:'用户状态异常，请联系管理员,用户或圈子不存在',
         },
         HttpStatus.BAD_REQUEST,
       );
     }
+
     //文章入数据库
     const article = new ArticleEntity()
     article.content = req.body.content 
     article.status = true
+    article.type = req.body.type==="tw"?1:0
     article.community_id = req.body.community_id
     article.author_info = user_id[0].id
     article.create_time = new Date()
@@ -337,5 +339,25 @@ async del_comments(req):Promise<any>{
 
 }
 
+//设置最佳答案
+async selected(req):Promise<any>{
+  const user_id = await this.userRepository.find({select:['id'],where:{status:true,user_name:req.user.username}})
+  // const article_id = req.body.article_id
+  const comments_id = req.body.comments_id
+  const selected = new CommentEntity()
+  selected.selected = true
+  const res = await this.commentRepository.update(comments_id,selected)
+  return res
+}
+
+//获取回答列表
+async get_comment_selected(req): Promise<any>{
+  const res=await this.commentRepository.find({
+    where:{status:true,article_id:req.article_id},
+    relations:['user'],
+    order:{create_time:'DESC'}
+  })
+  return res
+}
 
 }

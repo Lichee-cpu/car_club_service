@@ -91,6 +91,19 @@ export class ArticleController {
       const res = this.articleService.del_comments(req)
       return res
     }
- 
+
+    //确认优质回答
+    @UseGuards(AuthGuard('jwt'))
+    @Post('/selected')
+    async selected(@Request() req){
+      const res = this.articleService.selected(req)
+      return res
+    }
+    //获取评论列表
+  @Get('article/get_comment_selected')
+  async get_comment_selected(@Query() req){
+    const res = this.articleService.get_comment_selected(req)
+    return res
+  }
 
 }
