@@ -22,6 +22,31 @@
   <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
   [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
 
+
+## 将项目下载到本地后
+###  1.执行命令，安装所需依赖
+```bash
+$ yarn
+```
+###  2.执行命令，启动项目
+```bash
+$ yarn start:dev
+```
+
+## 文件配置说明
+
+###   src/config/oss.ts 下配置阿里云OSS
+
+###   src/config/database.ts 配置数据库连接
+
+###   src/main.ts 配置端口
+
+
+
+
+
+
+
 ## Description
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
